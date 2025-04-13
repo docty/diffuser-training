@@ -851,7 +851,7 @@ def main():
 
                 # Backpropagate
                 accelerator.backward(loss)
-                if accelerator.sync_gradients:
+                if accelerator.scaler and accelerator.scaler._enabled:
                     params_to_clip = lora_layers
                     accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
                 optimizer.step()
