@@ -53,8 +53,8 @@ from transformers.utils.versions import require_version
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 #check_min_version("4.52.0.dev0")
 
-# logging.basicConfig(level=logging.INFO)
-# logger = get_logger(__name__)
+logging.basicConfig(level=logging.INFO)
+logger = get_logger(__name__)
 print(logger)
 # require_version("datasets>=2.0.0", "To fix: pip install -r examples/pytorch/semantic-segmentation/requirements.txt")
 
