@@ -761,36 +761,36 @@ def main():
      # Run evaluation on test dataset and save the model
      # ------------------------------------------------------------------------------------------------
 
-#     logger.info("***** Running evaluation on test dataset *****")
-#     metrics = evaluation_loop(model, image_processor, accelerator, test_dataloader, id2label)
-#     metrics = {f"test_{k}": v for k, v in metrics.items()}
+     logger.info("***** Running evaluation on test dataset *****")
+     metrics = evaluation_loop(model, image_processor, accelerator, test_dataloader, id2label)
+     metrics = {f"test_{k}": v for k, v in metrics.items()}
 
-#     logger.info(f"Test metrics: {metrics}")
+     logger.info(f"Test metrics: {metrics}")
 
-#     if args.with_tracking:
-#         accelerator.end_training()
+     if args.with_tracking:
+         accelerator.end_training()
 
-#     if args.output_dir is not None:
-#         accelerator.wait_for_everyone()
-#         unwrapped_model = accelerator.unwrap_model(model)
-#         unwrapped_model.save_pretrained(
-#             args.output_dir, is_main_process=accelerator.is_main_process, save_function=accelerator.save
-#         )
-#         if accelerator.is_main_process:
-#             with open(os.path.join(args.output_dir, "all_results.json"), "w") as f:
-#                 json.dump(metrics, f, indent=2)
+     if args.output_dir is not None:
+         accelerator.wait_for_everyone()
+         unwrapped_model = accelerator.unwrap_model(model)
+         unwrapped_model.save_pretrained(
+             args.output_dir, is_main_process=accelerator.is_main_process, save_function=accelerator.save
+         )
+         if accelerator.is_main_process:
+             with open(os.path.join(args.output_dir, "all_results.json"), "w") as f:
+                 json.dump(metrics, f, indent=2)
 
-#             image_processor.save_pretrained(args.output_dir)
+             image_processor.save_pretrained(args.output_dir)
 
-#             if args.push_to_hub:
-#                 api.upload_folder(
-#                     commit_message="End of training",
-#                     folder_path=args.output_dir,
-#                     repo_id=repo_id,
-#                     repo_type="model",
-#                     token=args.hub_token,
-#                     ignore_patterns=["epoch_*"],
-#                 )
+             if args.push_to_hub:
+                 api.upload_folder(
+                     commit_message="End of training",
+                     folder_path=args.output_dir,
+                     repo_id=repo_id,
+                     repo_type="model",
+                     token=args.hub_token,
+                     ignore_patterns=["epoch_*"],
+                 )
 
 
 if __name__ == "__main__":
