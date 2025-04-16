@@ -414,7 +414,8 @@ def main():
          accelerator_log_kwargs["project_dir"] = args.output_dir
          print(accelerator_log_kwargs)
 
-#     accelerator = Accelerator(gradient_accumulation_steps=args.gradient_accumulation_steps, **accelerator_log_kwargs)
+     accelerator = Accelerator(gradient_accumulation_steps=args.gradient_accumulation_steps, **accelerator_log_kwargs)
+     print(accelerator)
 
 #     logger.info(accelerator.state, main_process_only=False)
 #     if accelerator.is_local_main_process:
