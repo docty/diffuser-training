@@ -429,26 +429,27 @@ def main():
      # We set device_specific to True as we want different data augmentation per device.
      if args.seed is not None:
          set_seed(args.seed, device_specific=True)
-     print(args.seed)
+     
      # Handle the repository creation
-#     if accelerator.is_main_process:
-#         if args.push_to_hub:
-#             # Retrieve of infer repo_name
-#             repo_name = args.hub_model_id
-#             if repo_name is None:
-#                 repo_name = Path(args.output_dir).absolute().name
-#             # Create repo and retrieve repo_id
-#             api = HfApi()
-#             repo_id = api.create_repo(repo_name, exist_ok=True, token=args.hub_token).repo_id
+     if accelerator.is_main_process:
+         if args.push_to_hub:
+             # Retrieve of infer repo_name
+             repo_name = args.hub_model_id
+             if repo_name is None:
+                 repo_name = Path(args.output_dir).absolute().name
+             # Create repo and retrieve repo_id
+             api = HfApi()
+             repo_id = api.create_repo(repo_name, exist_ok=True, token=args.hub_token).repo_id
 
-#             with open(os.path.join(args.output_dir, ".gitignore"), "w+") as gitignore:
-#                 if "step_*" not in gitignore:
-#                     gitignore.write("step_*\n")
-#                 if "epoch_*" not in gitignore:
-#                     gitignore.write("epoch_*\n")
-#         elif args.output_dir is not None:
-#             os.makedirs(args.output_dir, exist_ok=True)
-#     accelerator.wait_for_everyone()
+             with open(os.path.join(args.output_dir, ".gitignore"), "w+") as gitignore:
+                 if "step_*" not in gitignore:
+                     gitignore.write("step_*\n")
+                 if "epoch_*" not in gitignore:
+                     gitignore.write("epoch_*\n")
+         elif args.output_dir is not None:
+             os.makedirs(args.output_dir, exist_ok=True)
+     accelerator.wait_for_everyone()
+     print('Folder Ready')
 
 #     # Load dataset
 #     # In distributed training, the load_dataset function guarantees that only one local process can concurrently
