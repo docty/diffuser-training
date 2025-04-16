@@ -557,7 +557,7 @@ def main():
      test_dataloader = DataLoader(
          test_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, **dataloader_common_args
      )
-    print(train_dataloader)
+     print(train_dataloader)
 #     # ------------------------------------------------------------------------------------------------
 #     # Define optimizer, scheduler and prepare everything with the accelerator
 #     # ------------------------------------------------------------------------------------------------
