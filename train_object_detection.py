@@ -596,26 +596,26 @@ def main():
      model, optimizer, train_dataloader, valid_dataloader, test_dataloader, lr_scheduler = accelerator.prepare(
          model, optimizer, train_dataloader, valid_dataloader, test_dataloader, lr_scheduler
      )
-     print(model)
+     
 
-#     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
-#     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
-#     if overrode_max_train_steps:
-#         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
-#     # Afterwards we recalculate our number of training epochs
-#     args.num_train_epochs = math.ceil(args.max_train_steps / num_update_steps_per_epoch)
+     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
+     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
+     if overrode_max_train_steps:
+         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
+     # Afterwards we recalculate our number of training epochs
+     args.num_train_epochs = math.ceil(args.max_train_steps / num_update_steps_per_epoch)
 
-#     # We need to initialize the trackers we use, and also store our configuration.
-#     # The trackers initializes automatically on the main process.
-#     if args.with_tracking:
-#         experiment_config = vars(args)
-#         # TensorBoard cannot log Enums, need the raw value
-#         experiment_config["lr_scheduler_type"] = experiment_config["lr_scheduler_type"].value
-#         accelerator.init_trackers("object_detection_no_trainer", experiment_config)
+     # We need to initialize the trackers we use, and also store our configuration.
+     # The trackers initializes automatically on the main process.
+     if args.with_tracking:
+         experiment_config = vars(args)
+         # TensorBoard cannot log Enums, need the raw value
+         experiment_config["lr_scheduler_type"] = experiment_config["lr_scheduler_type"].value
+         accelerator.init_trackers("object_detection_no_trainer", experiment_config)
 
-#     # ------------------------------------------------------------------------------------------------
-#     # Run training with evaluation on each epoch
-#     # ------------------------------------------------------------------------------------------------
+     # ------------------------------------------------------------------------------------------------
+     # Run training with evaluation on each epoch
+     # ------------------------------------------------------------------------------------------------
 
 #     total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
