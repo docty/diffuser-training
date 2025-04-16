@@ -496,68 +496,68 @@ def main():
          use_fast=args.use_fast,
          **common_pretrained_args,
      )
-     print(config, model, image_processor)
+     print('\n********************** Completed: config, model, image_processor ******************************************** \n')
 
-#     # ------------------------------------------------------------------------------------------------
-#     # Define image augmentations and dataset transforms
-#     # ------------------------------------------------------------------------------------------------
-#     max_size = args.image_square_size
-#     train_augment_and_transform = A.Compose(
-#         [
-#             A.Compose(
-#                 [
-#                     A.SmallestMaxSize(max_size=max_size, p=1.0),
-#                     A.RandomSizedBBoxSafeCrop(height=max_size, width=max_size, p=1.0),
-#                 ],
-#                 p=0.2,
-#             ),
-#             A.OneOf(
-#                 [
-#                     A.Blur(blur_limit=7, p=0.5),
-#                     A.MotionBlur(blur_limit=7, p=0.5),
-#                     A.Defocus(radius=(1, 5), alias_blur=(0.1, 0.25), p=0.1),
-#                 ],
-#                 p=0.1,
-#             ),
-#             A.Perspective(p=0.1),
-#             A.HorizontalFlip(p=0.5),
-#             A.RandomBrightnessContrast(p=0.5),
-#             A.HueSaturationValue(p=0.1),
-#         ],
-#         bbox_params=A.BboxParams(format="coco", label_fields=["category"], clip=True, min_area=25),
-#     )
-#     validation_transform = A.Compose(
-#         [A.NoOp()],
-#         bbox_params=A.BboxParams(format="coco", label_fields=["category"], clip=True),
-#     )
+     # ------------------------------------------------------------------------------------------------
+     # Define image augmentations and dataset transforms
+     # ------------------------------------------------------------------------------------------------
+     max_size = args.image_square_size
+     train_augment_and_transform = A.Compose(
+         [
+             A.Compose(
+                 [
+                     A.SmallestMaxSize(max_size=max_size, p=1.0),
+                     A.RandomSizedBBoxSafeCrop(height=max_size, width=max_size, p=1.0),
+                 ],
+                 p=0.2,
+             ),
+             A.OneOf(
+                 [
+                     A.Blur(blur_limit=7, p=0.5),
+                     A.MotionBlur(blur_limit=7, p=0.5),
+                     A.Defocus(radius=(1, 5), alias_blur=(0.1, 0.25), p=0.1),
+                 ],
+                 p=0.1,
+             ),
+             A.Perspective(p=0.1),
+             A.HorizontalFlip(p=0.5),
+             A.RandomBrightnessContrast(p=0.5),
+             A.HueSaturationValue(p=0.1),
+         ],
+         bbox_params=A.BboxParams(format="coco", label_fields=["category"], clip=True, min_area=25),
+     )
+     validation_transform = A.Compose(
+         [A.NoOp()],
+         bbox_params=A.BboxParams(format="coco", label_fields=["category"], clip=True),
+     )
 
-#     # Make transform functions for batch and apply for dataset splits
-#     train_transform_batch = partial(
-#         augment_and_transform_batch, transform=train_augment_and_transform, image_processor=image_processor
-#     )
-#     validation_transform_batch = partial(
-#         augment_and_transform_batch, transform=validation_transform, image_processor=image_processor
-#     )
+     # Make transform functions for batch and apply for dataset splits
+     train_transform_batch = partial(
+         augment_and_transform_batch, transform=train_augment_and_transform, image_processor=image_processor
+     )
+     validation_transform_batch = partial(
+         augment_and_transform_batch, transform=validation_transform, image_processor=image_processor
+     )
 
-#     with accelerator.main_process_first():
-#         train_dataset = dataset["train"].with_transform(train_transform_batch)
-#         valid_dataset = dataset["validation"].with_transform(validation_transform_batch)
-#         test_dataset = dataset["test"].with_transform(validation_transform_batch)
+     with accelerator.main_process_first():
+         train_dataset = dataset["train"].with_transform(train_transform_batch)
+         valid_dataset = dataset["validation"].with_transform(validation_transform_batch)
+         test_dataset = dataset["test"].with_transform(validation_transform_batch)
 
-#     dataloader_common_args = {
-#         "num_workers": args.dataloader_num_workers,
-#         "collate_fn": collate_fn,
-#     }
-#     train_dataloader = DataLoader(
-#         train_dataset, shuffle=True, batch_size=args.per_device_train_batch_size, **dataloader_common_args
-#     )
-#     valid_dataloader = DataLoader(
-#         valid_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, **dataloader_common_args
-#     )
-#     test_dataloader = DataLoader(
-#         test_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, **dataloader_common_args
-#     )
-
+     dataloader_common_args = {
+         "num_workers": args.dataloader_num_workers,
+         "collate_fn": collate_fn,
+     }
+     train_dataloader = DataLoader(
+         train_dataset, shuffle=True, batch_size=args.per_device_train_batch_size, **dataloader_common_args
+     )
+     valid_dataloader = DataLoader(
+         valid_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, **dataloader_common_args
+     )
+     test_dataloader = DataLoader(
+         test_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, **dataloader_common_args
+     )
+    print(train_dataloader)
 #     # ------------------------------------------------------------------------------------------------
 #     # Define optimizer, scheduler and prepare everything with the accelerator
 #     # ------------------------------------------------------------------------------------------------
