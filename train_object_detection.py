@@ -412,7 +412,7 @@ def main():
      if args.with_tracking:
          accelerator_log_kwargs["log_with"] = args.report_to
          accelerator_log_kwargs["project_dir"] = args.output_dir
-         print(accelerator_log_kwargs)
+         
 
      accelerator = Accelerator(gradient_accumulation_steps=args.gradient_accumulation_steps, **accelerator_log_kwargs)
      
@@ -467,35 +467,36 @@ def main():
      categories = dataset["train"].features["objects"].feature["category"].names
      id2label = dict(enumerate(categories))
      label2id = {v: k for k, v in id2label.items()}
-     print(categories, id2label, label2id)
+     
     
      # ------------------------------------------------------------------------------------------------
      # Load pretrained config, model and image processor
      # ------------------------------------------------------------------------------------------------
 
-#     common_pretrained_args = {
-#         "cache_dir": args.cache_dir,
-#         "token": args.hub_token,
-#         "trust_remote_code": args.trust_remote_code,
-#     }
-#     config = AutoConfig.from_pretrained(
-#         args.model_name_or_path, label2id=label2id, id2label=id2label, **common_pretrained_args
-#     )
-#     model = AutoModelForObjectDetection.from_pretrained(
-#         args.model_name_or_path,
-#         config=config,
-#         ignore_mismatched_sizes=args.ignore_mismatched_sizes,
-#         **common_pretrained_args,
-#     )
-#     image_processor = AutoImageProcessor.from_pretrained(
-#         args.model_name_or_path,
-#         do_resize=True,
-#         size={"max_height": args.image_square_size, "max_width": args.image_square_size},
-#         do_pad=True,
-#         pad_size={"height": args.image_square_size, "width": args.image_square_size},
-#         use_fast=args.use_fast,
-#         **common_pretrained_args,
-#     )
+     common_pretrained_args = {
+         "cache_dir": args.cache_dir,
+         "token": args.hub_token,
+         "trust_remote_code": args.trust_remote_code,
+     }
+     config = AutoConfig.from_pretrained(
+         args.model_name_or_path, label2id=label2id, id2label=id2label, **common_pretrained_args
+     )
+     model = AutoModelForObjectDetection.from_pretrained(
+         args.model_name_or_path,
+         config=config,
+         ignore_mismatched_sizes=args.ignore_mismatched_sizes,
+         **common_pretrained_args,
+     )
+     image_processor = AutoImageProcessor.from_pretrained(
+         args.model_name_or_path,
+         do_resize=True,
+         size={"max_height": args.image_square_size, "max_width": args.image_square_size},
+         do_pad=True,
+         pad_size={"height": args.image_square_size, "width": args.image_square_size},
+         use_fast=args.use_fast,
+         **common_pretrained_args,
+     )
+     print(config, model, image_processor)
 
 #     # ------------------------------------------------------------------------------------------------
 #     # Define image augmentations and dataset transforms
