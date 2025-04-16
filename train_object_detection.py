@@ -691,38 +691,38 @@ def main():
                  progress_bar.update(1)
                  completed_steps += 1
 
-#             if isinstance(checkpointing_steps, int):
-#                 if completed_steps % checkpointing_steps == 0 and accelerator.sync_gradients:
-#                     output_dir = f"step_{completed_steps}"
-#                     if args.output_dir is not None:
-#                         output_dir = os.path.join(args.output_dir, output_dir)
-#                     accelerator.save_state(output_dir)
+             if isinstance(checkpointing_steps, int):
+                 if completed_steps % checkpointing_steps == 0 and accelerator.sync_gradients:
+                     output_dir = f"step_{completed_steps}"
+                     if args.output_dir is not None:
+                         output_dir = os.path.join(args.output_dir, output_dir)
+                     accelerator.save_state(output_dir)
 
-#                     if args.push_to_hub and epoch < args.num_train_epochs - 1:
-#                         accelerator.wait_for_everyone()
-#                         unwrapped_model = accelerator.unwrap_model(model)
-#                         unwrapped_model.save_pretrained(
-#                             args.output_dir,
-#                             is_main_process=accelerator.is_main_process,
-#                             save_function=accelerator.save,
-#                         )
-#                         if accelerator.is_main_process:
-#                             image_processor.save_pretrained(args.output_dir)
-#                             api.upload_folder(
-#                                 commit_message=f"Training in progress epoch {epoch}",
-#                                 folder_path=args.output_dir,
-#                                 repo_id=repo_id,
-#                                 repo_type="model",
-#                                 token=args.hub_token,
-#                             )
+                     if args.push_to_hub and epoch < args.num_train_epochs - 1:
+                         accelerator.wait_for_everyone()
+                         unwrapped_model = accelerator.unwrap_model(model)
+                         unwrapped_model.save_pretrained(
+                             args.output_dir,
+                             is_main_process=accelerator.is_main_process,
+                             save_function=accelerator.save,
+                         )
+                         if accelerator.is_main_process:
+                             image_processor.save_pretrained(args.output_dir)
+                             api.upload_folder(
+                                 commit_message=f"Training in progress epoch {epoch}",
+                                 folder_path=args.output_dir,
+                                 repo_id=repo_id,
+                                 repo_type="model",
+                                 token=args.hub_token,
+                             )
 
-#             if completed_steps >= args.max_train_steps:
-#                 break
+             if completed_steps >= args.max_train_steps:
+                 break
 
-#         logger.info("***** Running evaluation *****")
-#         metrics = evaluation_loop(model, image_processor, accelerator, valid_dataloader, id2label)
+         logger.info("***** Running evaluation *****")
+         metrics = evaluation_loop(model, image_processor, accelerator, valid_dataloader, id2label)
 
-#         logger.info(f"epoch {epoch}: {metrics}")
+         logger.info(f"epoch {epoch}: {metrics}")
 
 #         if args.with_tracking:
 #             accelerator.log(
