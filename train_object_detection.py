@@ -569,33 +569,34 @@ def main():
          betas=[args.adam_beta1, args.adam_beta2],
          eps=args.adam_epsilon,
      )
-     print(optimizer)
+     
 
-#     # Figure out how many steps we should save the Accelerator states
-#     checkpointing_steps = args.checkpointing_steps
-#     if checkpointing_steps is not None and checkpointing_steps.isdigit():
-#         checkpointing_steps = int(checkpointing_steps)
+     # Figure out how many steps we should save the Accelerator states
+     checkpointing_steps = args.checkpointing_steps
+     if checkpointing_steps is not None and checkpointing_steps.isdigit():
+         checkpointing_steps = int(checkpointing_steps)
 
-#     # Scheduler and math around the number of training steps.
-#     overrode_max_train_steps = False
-#     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
-#     if args.max_train_steps is None:
-#         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
-#         overrode_max_train_steps = True
+     # Scheduler and math around the number of training steps.
+     overrode_max_train_steps = False
+     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
+     if args.max_train_steps is None:
+         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
+         overrode_max_train_steps = True
 
-#     lr_scheduler = get_scheduler(
-#         name=args.lr_scheduler_type,
-#         optimizer=optimizer,
-#         num_warmup_steps=args.num_warmup_steps * accelerator.num_processes,
-#         num_training_steps=args.max_train_steps
-#         if overrode_max_train_steps
-#         else args.max_train_steps * accelerator.num_processes,
-#     )
+     lr_scheduler = get_scheduler(
+         name=args.lr_scheduler_type,
+         optimizer=optimizer,
+         num_warmup_steps=args.num_warmup_steps * accelerator.num_processes,
+         num_training_steps=args.max_train_steps
+         if overrode_max_train_steps
+         else args.max_train_steps * accelerator.num_processes,
+     )
 
-#     # Prepare everything with our `accelerator`.
-#     model, optimizer, train_dataloader, valid_dataloader, test_dataloader, lr_scheduler = accelerator.prepare(
-#         model, optimizer, train_dataloader, valid_dataloader, test_dataloader, lr_scheduler
-#     )
+     # Prepare everything with our `accelerator`.
+     model, optimizer, train_dataloader, valid_dataloader, test_dataloader, lr_scheduler = accelerator.prepare(
+         model, optimizer, train_dataloader, valid_dataloader, test_dataloader, lr_scheduler
+     )
+     print(model)
 
 #     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
 #     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
