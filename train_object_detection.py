@@ -398,7 +398,7 @@ def parse_args():
 
 def main():
      args = parse_args()
-     print(args)
+     
 
      # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
      # information sent is the one passed as arguments along with your Python/PyTorch versions.
@@ -409,9 +409,10 @@ def main():
      # in the environment
      accelerator_log_kwargs = {}
 
-#     if args.with_tracking:
-#         accelerator_log_kwargs["log_with"] = args.report_to
-#         accelerator_log_kwargs["project_dir"] = args.output_dir
+     if args.with_tracking:
+         accelerator_log_kwargs["log_with"] = args.report_to
+         accelerator_log_kwargs["project_dir"] = args.output_dir
+         print(accelerator_log_kwargs)
 
 #     accelerator = Accelerator(gradient_accumulation_steps=args.gradient_accumulation_steps, **accelerator_log_kwargs)
 
