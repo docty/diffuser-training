@@ -455,22 +455,23 @@ def main():
      # In distributed training, the load_dataset function guarantees that only one local process can concurrently
      # download the dataset.
      dataset = load_dataset(args.dataset_name, cache_dir=args.cache_dir, trust_remote_code=args.trust_remote_code)
-     print(dataset)
-#     # If we don't have a validation split, split off a percentage of train as validation.
+     
+     # If we don't have a validation split, split off a percentage of train as validation.
      args.train_val_split = None if "validation" in dataset.keys() else args.train_val_split
      if isinstance(args.train_val_split, float) and args.train_val_split > 0.0:
          split = dataset["train"].train_test_split(args.train_val_split, seed=args.seed)
          dataset["train"] = split["train"]
          dataset["validation"] = split["test"]
-     print(dataset)
-#     # Get dataset categories and prepare mappings for label_name <-> label_id
-#     categories = dataset["train"].features["objects"].feature["category"].names
-#     id2label = dict(enumerate(categories))
-#     label2id = {v: k for k, v in id2label.items()}
-
-#     # ------------------------------------------------------------------------------------------------
-#     # Load pretrained config, model and image processor
-#     # ------------------------------------------------------------------------------------------------
+     
+     # Get dataset categories and prepare mappings for label_name <-> label_id
+     categories = dataset["train"].features["objects"].feature["category"].names
+     id2label = dict(enumerate(categories))
+     label2id = {v: k for k, v in id2label.items()}
+     print(categories, id2label, label2id)
+    
+     # ------------------------------------------------------------------------------------------------
+     # Load pretrained config, model and image processor
+     # ------------------------------------------------------------------------------------------------
 
 #     common_pretrained_args = {
 #         "cache_dir": args.cache_dir,
