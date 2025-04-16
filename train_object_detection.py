@@ -673,7 +673,7 @@ def main():
              active_dataloader = accelerator.skip_first_batches(train_dataloader, resume_step)
          else:
              active_dataloader = train_dataloader
-
+         print(epoch)
 #         for step, batch in enumerate(active_dataloader):
 #             with accelerator.accumulate(model):
 #                 outputs = model(**batch)
