@@ -617,22 +617,22 @@ def main():
      # Run training with evaluation on each epoch
      # ------------------------------------------------------------------------------------------------
 
-#     total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
+     total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
-#     logger.info("***** Running training *****")
-#     logger.info(f"  Num examples = {len(train_dataset)}")
-#     logger.info(f"  Num Epochs = {args.num_train_epochs}")
-#     logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
-#     logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
-#     logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
-#     logger.info(f"  Total optimization steps = {args.max_train_steps}")
+     logger.info("***** Running training *****")
+     logger.info(f"  Num examples = {len(train_dataset)}")
+     logger.info(f"  Num Epochs = {args.num_train_epochs}")
+     logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
+     logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
+     logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+     logger.info(f"  Total optimization steps = {args.max_train_steps}")
 
-#     # Only show the progress bar once on each machine.
-#     progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
-#     completed_steps = 0
-#     starting_epoch = 0
+     # Only show the progress bar once on each machine.
+     progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
+     completed_steps = 0
+     starting_epoch = 0
 
-#     # Potentially load in the weights and states from a previous save
+     # Potentially load in the weights and states from a previous save
 #     if args.resume_from_checkpoint:
 #         if args.resume_from_checkpoint is not None or args.resume_from_checkpoint != "":
 #             checkpoint_path = args.resume_from_checkpoint
