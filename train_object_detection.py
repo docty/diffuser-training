@@ -724,42 +724,42 @@ def main():
 
          logger.info(f"epoch {epoch}: {metrics}")
 
-#         if args.with_tracking:
-#             accelerator.log(
-#                 {
-#                     "train_loss": total_loss.item() / len(train_dataloader),
-#                     **metrics,
-#                     "epoch": epoch,
-#                     "step": completed_steps,
-#                 },
-#                 step=completed_steps,
-#             )
+         if args.with_tracking:
+             accelerator.log(
+                 {
+                     "train_loss": total_loss.item() / len(train_dataloader),
+                     **metrics,
+                     "epoch": epoch,
+                     "step": completed_steps,
+                 },
+                 step=completed_steps,
+             )
 
-#         if args.push_to_hub and epoch < args.num_train_epochs - 1:
-#             accelerator.wait_for_everyone()
-#             unwrapped_model = accelerator.unwrap_model(model)
-#             unwrapped_model.save_pretrained(
-#                 args.output_dir, is_main_process=accelerator.is_main_process, save_function=accelerator.save
-#             )
-#             if accelerator.is_main_process:
-#                 image_processor.save_pretrained(args.output_dir)
-#                 api.upload_folder(
-#                     commit_message=f"Training in progress epoch {epoch}",
-#                     folder_path=args.output_dir,
-#                     repo_id=repo_id,
-#                     repo_type="model",
-#                     token=args.hub_token,
-#                 )
+         if args.push_to_hub and epoch < args.num_train_epochs - 1:
+             accelerator.wait_for_everyone()
+             unwrapped_model = accelerator.unwrap_model(model)
+             unwrapped_model.save_pretrained(
+                 args.output_dir, is_main_process=accelerator.is_main_process, save_function=accelerator.save
+             )
+             if accelerator.is_main_process:
+                 image_processor.save_pretrained(args.output_dir)
+                 api.upload_folder(
+                     commit_message=f"Training in progress epoch {epoch}",
+                     folder_path=args.output_dir,
+                     repo_id=repo_id,
+                     repo_type="model",
+                     token=args.hub_token,
+                 )
 
-#         if args.checkpointing_steps == "epoch":
-#             output_dir = f"epoch_{epoch}"
-#             if args.output_dir is not None:
-#                 output_dir = os.path.join(args.output_dir, output_dir)
-#             accelerator.save_state(output_dir)
+         if args.checkpointing_steps == "epoch":
+             output_dir = f"epoch_{epoch}"
+             if args.output_dir is not None:
+                 output_dir = os.path.join(args.output_dir, output_dir)
+             accelerator.save_state(output_dir)
 
-#     # ------------------------------------------------------------------------------------------------
-#     # Run evaluation on test dataset and save the model
-#     # ------------------------------------------------------------------------------------------------
+     # ------------------------------------------------------------------------------------------------
+     # Run evaluation on test dataset and save the model
+     # ------------------------------------------------------------------------------------------------
 
 #     logger.info("***** Running evaluation on test dataset *****")
 #     metrics = evaluation_loop(model, image_processor, accelerator, test_dataloader, id2label)
