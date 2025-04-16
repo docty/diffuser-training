@@ -557,18 +557,19 @@ def main():
      test_dataloader = DataLoader(
          test_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, **dataloader_common_args
      )
-     print(train_dataloader)
-#     # ------------------------------------------------------------------------------------------------
-#     # Define optimizer, scheduler and prepare everything with the accelerator
-#     # ------------------------------------------------------------------------------------------------
+     
+     # ------------------------------------------------------------------------------------------------
+     # Define optimizer, scheduler and prepare everything with the accelerator
+     # ------------------------------------------------------------------------------------------------
 
-#     # Optimizer
-#     optimizer = torch.optim.AdamW(
-#         list(model.parameters()),
-#         lr=args.learning_rate,
-#         betas=[args.adam_beta1, args.adam_beta2],
-#         eps=args.adam_epsilon,
-#     )
+     # Optimizer
+     optimizer = torch.optim.AdamW(
+         list(model.parameters()),
+         lr=args.learning_rate,
+         betas=[args.adam_beta1, args.adam_beta2],
+         eps=args.adam_epsilon,
+     )
+     print(optimizer)
 
 #     # Figure out how many steps we should save the Accelerator states
 #     checkpointing_steps = args.checkpointing_steps
