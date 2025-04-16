@@ -449,13 +449,13 @@ def main():
          elif args.output_dir is not None:
              os.makedirs(args.output_dir, exist_ok=True)
      accelerator.wait_for_everyone()
-     print('Folder Ready')
+     
 
-#     # Load dataset
-#     # In distributed training, the load_dataset function guarantees that only one local process can concurrently
-#     # download the dataset.
-#     dataset = load_dataset(args.dataset_name, cache_dir=args.cache_dir, trust_remote_code=args.trust_remote_code)
-
+     # Load dataset
+     # In distributed training, the load_dataset function guarantees that only one local process can concurrently
+     # download the dataset.
+     dataset = load_dataset(args.dataset_name, cache_dir=args.cache_dir, trust_remote_code=args.trust_remote_code)
+     print(dataset)
 #     # If we don't have a validation split, split off a percentage of train as validation.
 #     args.train_val_split = None if "validation" in dataset.keys() else args.train_val_split
 #     if isinstance(args.train_val_split, float) and args.train_val_split > 0.0:
