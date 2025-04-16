@@ -674,22 +674,22 @@ def main():
          else:
              active_dataloader = train_dataloader
          print(epoch)
-#         for step, batch in enumerate(active_dataloader):
-#             with accelerator.accumulate(model):
-#                 outputs = model(**batch)
-#                 loss = outputs.loss
-#                 # We keep track of the loss at each epoch
-#                 if args.with_tracking:
-#                     total_loss += loss.detach().float()
-#                 accelerator.backward(loss)
-#                 optimizer.step()
-#                 lr_scheduler.step()
-#                 optimizer.zero_grad()
+         for step, batch in enumerate(active_dataloader):
+             with accelerator.accumulate(model):
+                 outputs = model(**batch)
+                 loss = outputs.loss
+                 # We keep track of the loss at each epoch
+                 if args.with_tracking:
+                     total_loss += loss.detach().float()
+                 accelerator.backward(loss)
+                 optimizer.step()
+                 lr_scheduler.step()
+                 optimizer.zero_grad()
 
-#             # Checks if the accelerator has performed an optimization step behind the scenes
-#             if accelerator.sync_gradients:
-#                 progress_bar.update(1)
-#                 completed_steps += 1
+             # Checks if the accelerator has performed an optimization step behind the scenes
+             if accelerator.sync_gradients:
+                 progress_bar.update(1)
+                 completed_steps += 1
 
 #             if isinstance(checkpointing_steps, int):
 #                 if completed_steps % checkpointing_steps == 0 and accelerator.sync_gradients:
