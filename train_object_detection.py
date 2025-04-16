@@ -55,7 +55,7 @@ from transformers.utils.versions import require_version
 
 logging.basicConfig(level=logging.INFO)
 logger = get_logger(__name__)
-print("\n******************** Process about starting ********************")
+print("\n******************** Process about starting ********************\n")
 # require_version("datasets>=2.0.0", "To fix: pip install -r examples/pytorch/semantic-segmentation/requirements.txt")
 
 
@@ -424,13 +424,13 @@ def main():
      else:
          datasets.utils.logging.set_verbosity_error()
          transformers.utils.logging.set_verbosity_error()
-     print(datasets, transformers)
-#     # If passed along, set the training seed now.
-#     # We set device_specific to True as we want different data augmentation per device.
-#     if args.seed is not None:
-#         set_seed(args.seed, device_specific=True)
-
-#     # Handle the repository creation
+      
+     # If passed along, set the training seed now.
+     # We set device_specific to True as we want different data augmentation per device.
+     if args.seed is not None:
+         set_seed(args.seed, device_specific=True)
+     print(args.seed)
+     # Handle the repository creation
 #     if accelerator.is_main_process:
 #         if args.push_to_hub:
 #             # Retrieve of infer repo_name
