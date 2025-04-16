@@ -55,7 +55,7 @@ from transformers.utils.versions import require_version
 
 logging.basicConfig(level=logging.INFO)
 logger = get_logger(__name__)
-print("******************** Process about starting ********************")
+print("\n******************** Process about starting ********************")
 # require_version("datasets>=2.0.0", "To fix: pip install -r examples/pytorch/semantic-segmentation/requirements.txt")
 
 
@@ -415,16 +415,16 @@ def main():
          print(accelerator_log_kwargs)
 
      accelerator = Accelerator(gradient_accumulation_steps=args.gradient_accumulation_steps, **accelerator_log_kwargs)
-     print(accelerator)
+     
 
-#     logger.info(accelerator.state, main_process_only=False)
-#     if accelerator.is_local_main_process:
-#         datasets.utils.logging.set_verbosity_warning()
-#         transformers.utils.logging.set_verbosity_info()
-#     else:
-#         datasets.utils.logging.set_verbosity_error()
-#         transformers.utils.logging.set_verbosity_error()
-
+     logger.info(accelerator.state, main_process_only=False)
+     if accelerator.is_local_main_process:
+         datasets.utils.logging.set_verbosity_warning()
+         transformers.utils.logging.set_verbosity_info()
+     else:
+         datasets.utils.logging.set_verbosity_error()
+         transformers.utils.logging.set_verbosity_error()
+     print(datasets, transformers)
 #     # If passed along, set the training seed now.
 #     # We set device_specific to True as we want different data augmentation per device.
 #     if args.seed is not None:
