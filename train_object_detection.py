@@ -55,349 +55,350 @@ from transformers.utils.versions import require_version
 
 logging.basicConfig(level=logging.INFO)
 logger = get_logger(__name__)
-print(logger)
+print("******************** Process about starting ********************")
 # require_version("datasets>=2.0.0", "To fix: pip install -r examples/pytorch/semantic-segmentation/requirements.txt")
 
 
-# # Copied from examples/pytorch/object-detection/run_object_detection.format_image_annotations_as_coco
-# def format_image_annotations_as_coco(
-#     image_id: str, categories: list[int], areas: list[float], bboxes: list[tuple[float]]
-# ) -> dict:
-#     """Format one set of image annotations to the COCO format
+# Copied from examples/pytorch/object-detection/run_object_detection.format_image_annotations_as_coco
+def format_image_annotations_as_coco(
+    image_id: str, categories: list[int], areas: list[float], bboxes: list[tuple[float]]
+) -> dict:
+    """Format one set of image annotations to the COCO format
 
-#     Args:
-#         image_id (str): image id. e.g. "0001"
-#         categories (List[int]): list of categories/class labels corresponding to provided bounding boxes
-#         areas (List[float]): list of corresponding areas to provided bounding boxes
-#         bboxes (List[Tuple[float]]): list of bounding boxes provided in COCO format
-#             ([center_x, center_y, width, height] in absolute coordinates)
+    Args:
+        image_id (str): image id. e.g. "0001"
+        categories (List[int]): list of categories/class labels corresponding to provided bounding boxes
+        areas (List[float]): list of corresponding areas to provided bounding boxes
+        bboxes (List[Tuple[float]]): list of bounding boxes provided in COCO format
+            ([center_x, center_y, width, height] in absolute coordinates)
 
-#     Returns:
-#         dict: {
-#             "image_id": image id,
-#             "annotations": list of formatted annotations
-#         }
-#     """
-#     annotations = []
-#     for category, area, bbox in zip(categories, areas, bboxes):
-#         formatted_annotation = {
-#             "image_id": image_id,
-#             "category_id": category,
-#             "iscrowd": 0,
-#             "area": area,
-#             "bbox": list(bbox),
-#         }
-#         annotations.append(formatted_annotation)
+    Returns:
+        dict: {
+            "image_id": image id,
+            "annotations": list of formatted annotations
+        }
+    """
+    annotations = []
+    for category, area, bbox in zip(categories, areas, bboxes):
+        formatted_annotation = {
+            "image_id": image_id,
+            "category_id": category,
+            "iscrowd": 0,
+            "area": area,
+            "bbox": list(bbox),
+        }
+        annotations.append(formatted_annotation)
 
-#     return {
-#         "image_id": image_id,
-#         "annotations": annotations,
-#     }
-
-
-# # Copied from examples/pytorch/object-detection/run_object_detection.convert_bbox_yolo_to_pascal
-# def convert_bbox_yolo_to_pascal(boxes: torch.Tensor, image_size: tuple[int, int]) -> torch.Tensor:
-#     """
-#     Convert bounding boxes from YOLO format (x_center, y_center, width, height) in range [0, 1]
-#     to Pascal VOC format (x_min, y_min, x_max, y_max) in absolute coordinates.
-
-#     Args:
-#         boxes (torch.Tensor): Bounding boxes in YOLO format
-#         image_size (Tuple[int, int]): Image size in format (height, width)
-
-#     Returns:
-#         torch.Tensor: Bounding boxes in Pascal VOC format (x_min, y_min, x_max, y_max)
-#     """
-#     # convert center to corners format
-#     boxes = center_to_corners_format(boxes)
-
-#     # convert to absolute coordinates
-#     height, width = image_size
-#     boxes = boxes * torch.tensor([[width, height, width, height]])
-
-#     return boxes
+    return {
+        "image_id": image_id,
+        "annotations": annotations,
+    }
 
 
-# # Copied from examples/pytorch/object-detection/run_object_detection.augment_and_transform_batch
-# def augment_and_transform_batch(
-#     examples: Mapping[str, Any],
-#     transform: A.Compose,
-#     image_processor: AutoImageProcessor,
-#     return_pixel_mask: bool = False,
-# ) -> BatchFeature:
-#     """Apply augmentations and format annotations in COCO format for object detection task"""
+# Copied from examples/pytorch/object-detection/run_object_detection.convert_bbox_yolo_to_pascal
+def convert_bbox_yolo_to_pascal(boxes: torch.Tensor, image_size: tuple[int, int]) -> torch.Tensor:
+    """
+    Convert bounding boxes from YOLO format (x_center, y_center, width, height) in range [0, 1]
+    to Pascal VOC format (x_min, y_min, x_max, y_max) in absolute coordinates.
 
-#     images = []
-#     annotations = []
-#     for image_id, image, objects in zip(examples["image_id"], examples["image"], examples["objects"]):
-#         image = np.array(image.convert("RGB"))
+    Args:
+        boxes (torch.Tensor): Bounding boxes in YOLO format
+        image_size (Tuple[int, int]): Image size in format (height, width)
 
-#         # apply augmentations
-#         output = transform(image=image, bboxes=objects["bbox"], category=objects["category"])
-#         images.append(output["image"])
+    Returns:
+        torch.Tensor: Bounding boxes in Pascal VOC format (x_min, y_min, x_max, y_max)
+    """
+    # convert center to corners format
+    boxes = center_to_corners_format(boxes)
 
-#         # format annotations in COCO format
-#         formatted_annotations = format_image_annotations_as_coco(
-#             image_id, output["category"], objects["area"], output["bboxes"]
-#         )
-#         annotations.append(formatted_annotations)
+    # convert to absolute coordinates
+    height, width = image_size
+    boxes = boxes * torch.tensor([[width, height, width, height]])
 
-#     # Apply the image processor transformations: resizing, rescaling, normalization
-#     result = image_processor(images=images, annotations=annotations, return_tensors="pt")
-
-#     if not return_pixel_mask:
-#         result.pop("pixel_mask", None)
-
-#     return result
+    return boxes
 
 
-# # Copied from examples/pytorch/object-detection/run_object_detection.collate_fn
-# def collate_fn(batch: list[BatchFeature]) -> Mapping[str, Union[torch.Tensor, list[Any]]]:
-#     data = {}
-#     data["pixel_values"] = torch.stack([x["pixel_values"] for x in batch])
-#     data["labels"] = [x["labels"] for x in batch]
-#     if "pixel_mask" in batch[0]:
-#         data["pixel_mask"] = torch.stack([x["pixel_mask"] for x in batch])
-#     return data
+# Copied from examples/pytorch/object-detection/run_object_detection.augment_and_transform_batch
+def augment_and_transform_batch(
+    examples: Mapping[str, Any],
+    transform: A.Compose,
+    image_processor: AutoImageProcessor,
+    return_pixel_mask: bool = False,
+) -> BatchFeature:
+    """Apply augmentations and format annotations in COCO format for object detection task"""
+
+    images = []
+    annotations = []
+    for image_id, image, objects in zip(examples["image_id"], examples["image"], examples["objects"]):
+        image = np.array(image.convert("RGB"))
+
+        # apply augmentations
+        output = transform(image=image, bboxes=objects["bbox"], category=objects["category"])
+        images.append(output["image"])
+
+        # format annotations in COCO format
+        formatted_annotations = format_image_annotations_as_coco(
+            image_id, output["category"], objects["area"], output["bboxes"]
+        )
+        annotations.append(formatted_annotations)
+
+    # Apply the image processor transformations: resizing, rescaling, normalization
+    result = image_processor(images=images, annotations=annotations, return_tensors="pt")
+
+    if not return_pixel_mask:
+        result.pop("pixel_mask", None)
+
+    return result
 
 
-# def nested_to_cpu(objects):
-#     """Move nested tesnors in objects to CPU if they are on GPU"""
-#     if isinstance(objects, torch.Tensor):
-#         return objects.cpu()
-#     elif isinstance(objects, Mapping):
-#         return type(objects)({k: nested_to_cpu(v) for k, v in objects.items()})
-#     elif isinstance(objects, (list, tuple)):
-#         return type(objects)([nested_to_cpu(v) for v in objects])
-#     elif isinstance(objects, (np.ndarray, str, int, float, bool)):
-#         return objects
-#     raise ValueError(f"Unsupported type {type(objects)}")
+# Copied from examples/pytorch/object-detection/run_object_detection.collate_fn
+def collate_fn(batch: list[BatchFeature]) -> Mapping[str, Union[torch.Tensor, list[Any]]]:
+    data = {}
+    data["pixel_values"] = torch.stack([x["pixel_values"] for x in batch])
+    data["labels"] = [x["labels"] for x in batch]
+    if "pixel_mask" in batch[0]:
+        data["pixel_mask"] = torch.stack([x["pixel_mask"] for x in batch])
+    return data
 
 
-# def evaluation_loop(
-#     model: torch.nn.Module,
-#     image_processor: AutoImageProcessor,
-#     accelerator: Accelerator,
-#     dataloader: DataLoader,
-#     id2label: Mapping[int, str],
-# ) -> dict:
-#     model.eval()
-#     metric = MeanAveragePrecision(box_format="xyxy", class_metrics=True)
-
-#     for step, batch in enumerate(tqdm(dataloader, disable=not accelerator.is_local_main_process)):
-#         with torch.no_grad():
-#             outputs = model(**batch)
-
-#         # For metric computation we need to collect ground truth and predicted boxes in the same format
-
-#         # 1. Collect predicted boxes, classes, scores
-#         # image_processor convert boxes from YOLO format to Pascal VOC format
-#         # ([x_min, y_min, x_max, y_max] in absolute coordinates)
-#         image_size = torch.stack([example["orig_size"] for example in batch["labels"]], dim=0)
-#         predictions = image_processor.post_process_object_detection(outputs, threshold=0.0, target_sizes=image_size)
-#         predictions = nested_to_cpu(predictions)
-
-#         # 2. Collect ground truth boxes in the same format for metric computation
-#         # Do the same, convert YOLO boxes to Pascal VOC format
-#         target = []
-#         for label in batch["labels"]:
-#             label = nested_to_cpu(label)
-#             boxes = convert_bbox_yolo_to_pascal(label["boxes"], label["orig_size"])
-#             labels = label["class_labels"]
-#             target.append({"boxes": boxes, "labels": labels})
-
-#         metric.update(predictions, target)
-
-#     metrics = metric.compute()
-
-#     # Replace list of per class metrics with separate metric for each class
-#     classes = metrics.pop("classes")
-#     map_per_class = metrics.pop("map_per_class")
-#     mar_100_per_class = metrics.pop("mar_100_per_class")
-#     for class_id, class_map, class_mar in zip(classes, map_per_class, mar_100_per_class):
-#         class_name = id2label[class_id.item()]
-#         metrics[f"map_{class_name}"] = class_map
-#         metrics[f"mar_100_{class_name}"] = class_mar
-
-#     # Convert metrics to float
-#     metrics = {k: round(v.item(), 4) for k, v in metrics.items()}
-
-#     return metrics
+def nested_to_cpu(objects):
+    """Move nested tesnors in objects to CPU if they are on GPU"""
+    if isinstance(objects, torch.Tensor):
+        return objects.cpu()
+    elif isinstance(objects, Mapping):
+        return type(objects)({k: nested_to_cpu(v) for k, v in objects.items()})
+    elif isinstance(objects, (list, tuple)):
+        return type(objects)([nested_to_cpu(v) for v in objects])
+    elif isinstance(objects, (np.ndarray, str, int, float, bool)):
+        return objects
+    raise ValueError(f"Unsupported type {type(objects)}")
 
 
-# def parse_args():
-#     parser = argparse.ArgumentParser(description="Finetune a transformers model for object detection task")
-#     parser.add_argument(
-#         "--model_name_or_path",
-#         type=str,
-#         help="Path to a pretrained model or model identifier from huggingface.co/models.",
-#         default="facebook/detr-resnet-50",
-#     )
-#     parser.add_argument(
-#         "--dataset_name",
-#         type=str,
-#         help="Name of the dataset on the hub.",
-#         default="cppe-5",
-#     )
-#     parser.add_argument(
-#         "--train_val_split",
-#         type=float,
-#         default=0.15,
-#         help="Fraction of the dataset to be used for validation.",
-#     )
-#     parser.add_argument(
-#         "--ignore_mismatched_sizes",
-#         action="store_true",
-#         help="Ignore mismatched sizes between the model and the dataset.",
-#     )
-#     parser.add_argument(
-#         "--image_square_size",
-#         type=int,
-#         default=1333,
-#         help="Image longest size will be resized to this value, then image will be padded to square.",
-#     )
-#     parser.add_argument(
-#         "--use_fast",
-#         type=bool,
-#         default=True,
-#         help="Use a fast torchvision-base image processor if it is supported for a given model.",
-#     )
-#     parser.add_argument(
-#         "--cache_dir",
-#         type=str,
-#         help="Path to a folder in which the model and dataset will be cached.",
-#     )
-#     parser.add_argument(
-#         "--use_auth_token",
-#         action="store_true",
-#         help="Whether to use an authentication token to access the model repository.",
-#     )
-#     parser.add_argument(
-#         "--per_device_train_batch_size",
-#         type=int,
-#         default=8,
-#         help="Batch size (per device) for the training dataloader.",
-#     )
-#     parser.add_argument(
-#         "--per_device_eval_batch_size",
-#         type=int,
-#         default=8,
-#         help="Batch size (per device) for the evaluation dataloader.",
-#     )
-#     parser.add_argument(
-#         "--dataloader_num_workers",
-#         type=int,
-#         default=4,
-#         help="Number of workers to use for the dataloaders.",
-#     )
-#     parser.add_argument(
-#         "--learning_rate",
-#         type=float,
-#         default=5e-5,
-#         help="Initial learning rate (after the potential warmup period) to use.",
-#     )
-#     parser.add_argument(
-#         "--adam_beta1",
-#         type=float,
-#         default=0.9,
-#         help="Beta1 for AdamW optimizer",
-#     )
-#     parser.add_argument(
-#         "--adam_beta2",
-#         type=float,
-#         default=0.999,
-#         help="Beta2 for AdamW optimizer",
-#     )
-#     parser.add_argument(
-#         "--adam_epsilon",
-#         type=float,
-#         default=1e-8,
-#         help="Epsilon for AdamW optimizer",
-#     )
-#     parser.add_argument("--num_train_epochs", type=int, default=3, help="Total number of training epochs to perform.")
-#     parser.add_argument(
-#         "--max_train_steps",
-#         type=int,
-#         default=None,
-#         help="Total number of training steps to perform. If provided, overrides num_train_epochs.",
-#     )
-#     parser.add_argument(
-#         "--gradient_accumulation_steps",
-#         type=int,
-#         default=1,
-#         help="Number of updates steps to accumulate before performing a backward/update pass.",
-#     )
-#     parser.add_argument(
-#         "--lr_scheduler_type",
-#         type=SchedulerType,
-#         default="linear",
-#         help="The scheduler type to use.",
-#         choices=["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"],
-#     )
-#     parser.add_argument(
-#         "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
-#     )
-#     parser.add_argument("--output_dir", type=str, default=None, help="Where to store the final model.")
-#     parser.add_argument("--seed", type=int, default=None, help="A seed for reproducible training.")
-#     parser.add_argument("--push_to_hub", action="store_true", help="Whether or not to push the model to the Hub.")
-#     parser.add_argument(
-#         "--hub_model_id", type=str, help="The name of the repository to keep in sync with the local `output_dir`."
-#     )
-#     parser.add_argument("--hub_token", type=str, help="The token to use to push to the Model Hub.")
-#     parser.add_argument(
-#         "--trust_remote_code",
-#         action="store_true",
-#         help=(
-#             "Whether to trust the execution of code from datasets/models defined on the Hub."
-#             " This option should only be set to `True` for repositories you trust and in which you have read the"
-#             " code, as it will execute code present on the Hub on your local machine."
-#         ),
-#     )
-#     parser.add_argument(
-#         "--checkpointing_steps",
-#         type=str,
-#         default=None,
-#         help="Whether the various states should be saved at the end of every n steps, or 'epoch' for each epoch.",
-#     )
-#     parser.add_argument(
-#         "--resume_from_checkpoint",
-#         type=str,
-#         default=None,
-#         help="If the training should continue from a checkpoint folder.",
-#     )
-#     parser.add_argument(
-#         "--with_tracking",
-#         required=False,
-#         action="store_true",
-#         help="Whether to enable experiment trackers for logging.",
-#     )
-#     parser.add_argument(
-#         "--report_to",
-#         type=str,
-#         default="all",
-#         help=(
-#             'The integration to report the results and logs to. Supported platforms are `"tensorboard"`,'
-#             ' `"wandb"`, `"comet_ml"` and `"clearml"`. Use `"all"` (default) to report to all integrations. '
-#             "Only applicable when `--with_tracking` is passed."
-#         ),
-#     )
-#     args = parser.parse_args()
+def evaluation_loop(
+    model: torch.nn.Module,
+    image_processor: AutoImageProcessor,
+    accelerator: Accelerator,
+    dataloader: DataLoader,
+    id2label: Mapping[int, str],
+) -> dict:
+    model.eval()
+    metric = MeanAveragePrecision(box_format="xyxy", class_metrics=True)
 
-#     # Sanity checks
-#     if args.push_to_hub or args.with_tracking:
-#         if args.output_dir is None:
-#             raise ValueError(
-#                 "Need an `output_dir` to create a repo when `--push_to_hub` or `with_tracking` is specified."
-#             )
+    for step, batch in enumerate(tqdm(dataloader, disable=not accelerator.is_local_main_process)):
+        with torch.no_grad():
+            outputs = model(**batch)
 
-#     if args.output_dir is not None:
-#         os.makedirs(args.output_dir, exist_ok=True)
+        # For metric computation we need to collect ground truth and predicted boxes in the same format
 
-#     return args
+        # 1. Collect predicted boxes, classes, scores
+        # image_processor convert boxes from YOLO format to Pascal VOC format
+        # ([x_min, y_min, x_max, y_max] in absolute coordinates)
+        image_size = torch.stack([example["orig_size"] for example in batch["labels"]], dim=0)
+        predictions = image_processor.post_process_object_detection(outputs, threshold=0.0, target_sizes=image_size)
+        predictions = nested_to_cpu(predictions)
+
+        # 2. Collect ground truth boxes in the same format for metric computation
+        # Do the same, convert YOLO boxes to Pascal VOC format
+        target = []
+        for label in batch["labels"]:
+            label = nested_to_cpu(label)
+            boxes = convert_bbox_yolo_to_pascal(label["boxes"], label["orig_size"])
+            labels = label["class_labels"]
+            target.append({"boxes": boxes, "labels": labels})
+
+        metric.update(predictions, target)
+
+    metrics = metric.compute()
+
+    # Replace list of per class metrics with separate metric for each class
+    classes = metrics.pop("classes")
+    map_per_class = metrics.pop("map_per_class")
+    mar_100_per_class = metrics.pop("mar_100_per_class")
+    for class_id, class_map, class_mar in zip(classes, map_per_class, mar_100_per_class):
+        class_name = id2label[class_id.item()]
+        metrics[f"map_{class_name}"] = class_map
+        metrics[f"mar_100_{class_name}"] = class_mar
+
+    # Convert metrics to float
+    metrics = {k: round(v.item(), 4) for k, v in metrics.items()}
+
+    return metrics
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Finetune a transformers model for object detection task")
+    parser.add_argument(
+        "--model_name_or_path",
+        type=str,
+        help="Path to a pretrained model or model identifier from huggingface.co/models.",
+        default="facebook/detr-resnet-50",
+    )
+    parser.add_argument(
+        "--dataset_name",
+        type=str,
+        help="Name of the dataset on the hub.",
+        default="cppe-5",
+    )
+    parser.add_argument(
+        "--train_val_split",
+        type=float,
+        default=0.15,
+        help="Fraction of the dataset to be used for validation.",
+    )
+    parser.add_argument(
+        "--ignore_mismatched_sizes",
+        action="store_true",
+        help="Ignore mismatched sizes between the model and the dataset.",
+    )
+    parser.add_argument(
+        "--image_square_size",
+        type=int,
+        default=1333,
+        help="Image longest size will be resized to this value, then image will be padded to square.",
+    )
+    parser.add_argument(
+        "--use_fast",
+        type=bool,
+        default=True,
+        help="Use a fast torchvision-base image processor if it is supported for a given model.",
+    )
+    parser.add_argument(
+        "--cache_dir",
+        type=str,
+        help="Path to a folder in which the model and dataset will be cached.",
+    )
+    parser.add_argument(
+        "--use_auth_token",
+        action="store_true",
+        help="Whether to use an authentication token to access the model repository.",
+    )
+    parser.add_argument(
+        "--per_device_train_batch_size",
+        type=int,
+        default=8,
+        help="Batch size (per device) for the training dataloader.",
+    )
+    parser.add_argument(
+        "--per_device_eval_batch_size",
+        type=int,
+        default=8,
+        help="Batch size (per device) for the evaluation dataloader.",
+    )
+    parser.add_argument(
+        "--dataloader_num_workers",
+        type=int,
+        default=4,
+        help="Number of workers to use for the dataloaders.",
+    )
+    parser.add_argument(
+        "--learning_rate",
+        type=float,
+        default=5e-5,
+        help="Initial learning rate (after the potential warmup period) to use.",
+    )
+    parser.add_argument(
+        "--adam_beta1",
+        type=float,
+        default=0.9,
+        help="Beta1 for AdamW optimizer",
+    )
+    parser.add_argument(
+        "--adam_beta2",
+        type=float,
+        default=0.999,
+        help="Beta2 for AdamW optimizer",
+    )
+    parser.add_argument(
+        "--adam_epsilon",
+        type=float,
+        default=1e-8,
+        help="Epsilon for AdamW optimizer",
+    )
+    parser.add_argument("--num_train_epochs", type=int, default=3, help="Total number of training epochs to perform.")
+    parser.add_argument(
+        "--max_train_steps",
+        type=int,
+        default=None,
+        help="Total number of training steps to perform. If provided, overrides num_train_epochs.",
+    )
+    parser.add_argument(
+        "--gradient_accumulation_steps",
+        type=int,
+        default=1,
+        help="Number of updates steps to accumulate before performing a backward/update pass.",
+    )
+    parser.add_argument(
+        "--lr_scheduler_type",
+        type=SchedulerType,
+        default="linear",
+        help="The scheduler type to use.",
+        choices=["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"],
+    )
+    parser.add_argument(
+        "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
+    )
+    parser.add_argument("--output_dir", type=str, default=None, help="Where to store the final model.")
+    parser.add_argument("--seed", type=int, default=None, help="A seed for reproducible training.")
+    parser.add_argument("--push_to_hub", action="store_true", help="Whether or not to push the model to the Hub.")
+    parser.add_argument(
+        "--hub_model_id", type=str, help="The name of the repository to keep in sync with the local `output_dir`."
+    )
+    parser.add_argument("--hub_token", type=str, help="The token to use to push to the Model Hub.")
+    parser.add_argument(
+        "--trust_remote_code",
+        action="store_true",
+        help=(
+            "Whether to trust the execution of code from datasets/models defined on the Hub."
+            " This option should only be set to `True` for repositories you trust and in which you have read the"
+            " code, as it will execute code present on the Hub on your local machine."
+        ),
+    )
+    parser.add_argument(
+        "--checkpointing_steps",
+        type=str,
+        default=None,
+        help="Whether the various states should be saved at the end of every n steps, or 'epoch' for each epoch.",
+    )
+    parser.add_argument(
+        "--resume_from_checkpoint",
+        type=str,
+        default=None,
+        help="If the training should continue from a checkpoint folder.",
+    )
+    parser.add_argument(
+        "--with_tracking",
+        required=False,
+        action="store_true",
+        help="Whether to enable experiment trackers for logging.",
+    )
+    parser.add_argument(
+        "--report_to",
+        type=str,
+        default="all",
+        help=(
+            'The integration to report the results and logs to. Supported platforms are `"tensorboard"`,'
+            ' `"wandb"`, `"comet_ml"` and `"clearml"`. Use `"all"` (default) to report to all integrations. '
+            "Only applicable when `--with_tracking` is passed."
+        ),
+    )
+    args = parser.parse_args()
+
+    # Sanity checks
+    if args.push_to_hub or args.with_tracking:
+        if args.output_dir is None:
+            raise ValueError(
+                "Need an `output_dir` to create a repo when `--push_to_hub` or `with_tracking` is specified."
+            )
+
+    if args.output_dir is not None:
+        os.makedirs(args.output_dir, exist_ok=True)
+
+    return args
 
 
 def main():
-#     args = parse_args()
+     args = parse_args()
+     print(args)
 
      # Sending telemetry. Tracking the example usage helps us better allocate resources to maintain them. The
      # information sent is the one passed as arguments along with your Python/PyTorch versions.
