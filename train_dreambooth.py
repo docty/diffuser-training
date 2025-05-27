@@ -754,6 +754,7 @@ class PromptDataset(Dataset):
     def __getitem__(self, index):
         example = {}
         example["prompt"] = self.prompt
+        example["negative_prompt"] = "2d, render, 3d, distorted face, low quality, low resolution, fake"
         example["index"] = index
         return example
 
@@ -892,8 +893,8 @@ def main(args):
             for example in tqdm(
                 sample_dataloader, desc="Generating class images", disable=not accelerator.is_local_main_process
             ):
-                negative_prompt="2d, render, 3d, distorted face, low quality, low resolution, fake"
-                images = pipeline(example["prompt"], negative_prompt=negative_prompt).images
+                
+                images = pipeline(example["prompt"], negative_prompt=example["negative_prompt"]).images
 
                 for i, image in enumerate(images):
                     hash_image = insecure_hashlib.sha1(image.tobytes()).hexdigest()
