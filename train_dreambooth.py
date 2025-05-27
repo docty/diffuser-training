@@ -86,7 +86,7 @@ def save_model_card(
     model_description = f"""
 # DreamBooth - {repo_id}
 
-This is a dreambooth model derived from {base_model}. The weights were trained on {prompt} using [DreamBooth](https://dreambooth.github.io/).
+This is a dreambooth model derived from {base_model}. \n The weights were trained on {prompt} using [DreamBooth](https://dreambooth.github.io/).
 You can find some example images in the following. \n
 {img_str}
 
@@ -892,7 +892,8 @@ def main(args):
             for example in tqdm(
                 sample_dataloader, desc="Generating class images", disable=not accelerator.is_local_main_process
             ):
-                images = pipeline(example["prompt"]).images
+                negative_prompt="2d, render, 3d, distorted face, low quality, low resolution, fake"
+                images = pipeline(example["prompt"], negative_prompt=negative_prompt).images
 
                 for i, image in enumerate(images):
                     hash_image = insecure_hashlib.sha1(image.tobytes()).hexdigest()
